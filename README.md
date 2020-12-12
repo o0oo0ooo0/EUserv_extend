@@ -10,8 +10,8 @@
 1、修改 **main.py** 中的用户名和密码
 
 ```
-USERNAME: 你的EUserv账户邮箱或Customer ID,第二个账户
-PASSWORD: 第一个账户密码,第二个账户密码
+USERNAME: 你的EUserv账户邮箱或Customer ID
+PASSWORD: 账户的密码
 ```
 
 2、新建层 **BeautifulSoup** 将 [BeautifulSoup.zip](https://github.com/o0oo0ooo0/EUserv_extend/raw/main/BeautifulSoup.zip) 导入 ，添加运行环境 Python 3.6。
