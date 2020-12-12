@@ -14,7 +14,7 @@ USERNAME: 你的EUserv账户邮箱或Customer ID
 PASSWORD: 账户的密码
 ```
 
-2、新建层 **BeautifulSoup** 将 [BeautifulSoup.zip](https://github.com/o0oo0ooo0/EUserv_extend/raw/main/BeautifulSoup.zip) 导入 ，添加运行环境 Python 3.6。
+2、新建层 **BeautifulSoup** 将 [BeautifulSoup.zip](https://github.com/o0oo0ooo0/EUserv_extend/releases/download/0.1/BeautifulSoup.zip) 导入 ，添加运行环境 Python 3.6。
 
 3、新建腾讯云函数 **EUserv_extend** ，运行环境选择 Python 3.6，将修改后的 **main.py** 粘贴进去。
 
