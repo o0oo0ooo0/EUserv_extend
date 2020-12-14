@@ -9,7 +9,6 @@ SCKEY = '' # 这里填Server酱的key，无需推送可不填 示例: SCU64664Tf
 
 desp = '' # 不用动
 
-
 def print_(info):
     print(info)
     global desp
