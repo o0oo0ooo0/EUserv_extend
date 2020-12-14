@@ -4,7 +4,16 @@ import requests
 from bs4 import BeautifulSoup
 
 USERNAME = '' # 这里填用户名
-PASSWORD = '' # 这里填密码
+PASSWORD = ''  # 这里填密码
+SCKEY = '' # 这里填Server酱的key，无需推送可不填 示例: SCU64664Tfb2052dc10382535c3dd19e48ba000fc5dacd6a5dc3f6
+
+desp = '' # 不用动
+
+
+def print_(info):
+    print(info)
+    global desp
+    desp = desp + info + '\n\n'
 
 
 def login(username, password) -> (str, requests.session):
@@ -27,7 +36,7 @@ def login(username, password) -> (str, requests.session):
     f.raise_for_status()
     if f.text.find('Hello') == -1:
         return '-1', session
-    # print(f.request.url)
+    # print_(f.request.url)
     sess_id = f.request.url[f.request.url.index('=') + 1:len(f.request.url)]
     return sess_id, session
 
@@ -94,43 +103,52 @@ def renew(sess_id, session, password, order_id) -> bool:
 
 
 def check(sess_id, session):
-    print("Checking.......")
+    print_("Checking.......")
     d = get_servers(sess_id, session)
     flag = True
     for key, val in d.items():
         if val:
             flag = False
-            print("ServerID: %s Renew Failed!" % key)
+            print_("ServerID: %s Renew Failed!" % key)
     if flag:
-        print("ALL Work Done! Enjoy")
+        print_("ALL Work Done! Enjoy")
+
+def server_chan():
+    data = (
+    ('text', 'EUserv续费日志'),
+    ('desp', desp)
+)
+    response = requests.post('https://sc.ftqq.com/' + SCKEY + '.send', data = data)
+
 
 def main_handler(event, context):
     if not USERNAME or not PASSWORD:
-        print("你没有添加任何账户")
+        print_("你没有添加任何账户")
         exit(1)
     user_list = USERNAME.split(',')
     passwd_list = PASSWORD.split(',')
     if len(user_list) != len(passwd_list):
-        print("The number of usernames and passwords do not match!")
+        print_("The number of usernames and passwords do not match!")
         exit(1)
     for i in range(len(user_list)):
-        print('*' * 30)
-        print("正在续费第 %d 个账号" % (i + 1))
+        print_('*' * 30)
+        print_("正在续费第 %d 个账号" % (i + 1))
         sessid, s = login(user_list[i], passwd_list[i])
         if sessid == '-1':
-            print("第 %d 个账号登陆失败，请检查登录信息" % (i + 1))
+            print_("第 %d 个账号登陆失败，请检查登录信息" % (i + 1))
             continue
         SERVERS = get_servers(sessid, s)
-        print("检测到第 {} 个账号有 {} 台VPS，正在尝试续期".format(i + 1, len(SERVERS)))
+        print_("检测到第 {} 个账号有 {} 台VPS，正在尝试续期".format(i + 1, len(SERVERS)))
         for k, v in SERVERS.items():
             if v:
                 if not renew(sessid, s, passwd_list[i], k):
-                    print("ServerID: %s Renew Error!" % k)
+                    print_("ServerID: %s Renew Error!" % k)
                 else:
-                    print("ServerID: %s has been successfully renewed!" % k)
+                    print_("ServerID: %s has been successfully renewed!" % k)
             else:
-                print("ServerID: %s does not need to be renewed" % k)
+                print_("ServerID: %s does not need to be renewed" % k)
         time.sleep(15)
         check(sessid, s)
         time.sleep(5)
-    print('*' * 30)
+    print_('*' * 30)
+    SCKEY and server_chan()
