@@ -128,8 +128,8 @@ def main_handler(event, context):
     if not USERNAME or not PASSWORD:
         print_("你没有添加任何账户")
         exit(1)
-    user_list = USERNAME.split(',')
-    passwd_list = PASSWORD.split(',')
+    user_list = USERNAME.strip().split()
+    passwd_list = PASSWORD.strip().split()
     if len(user_list) != len(passwd_list):
         print_("The number of usernames and passwords do not match!")
         exit(1)
