@@ -118,7 +118,11 @@ def server_chan():
     ('text', 'EUserv续费日志'),
     ('desp', desp)
 )
-    response = requests.post('https://sc.ftqq.com/' + SCKEY + '.send', data = data)
+    response = requests.post('https://sc.ftqq.com/' + SCKEY + '.send', data=data)
+    if response.status_code != 200:
+        print('Server酱 推送失败')
+    else:
+        print('Server酱 推送成功')
 
 
 def main_handler(event, context):
@@ -131,7 +135,7 @@ def main_handler(event, context):
         print_("The number of usernames and passwords do not match!")
         exit(1)
     for i in range(len(user_list)):
-        print_('*' * 30)
+        print('*' * 30)
         print_("正在续费第 %d 个账号" % (i + 1))
         sessid, s = login(user_list[i], passwd_list[i])
         if sessid == '-1':
@@ -150,5 +154,5 @@ def main_handler(event, context):
         time.sleep(15)
         check(sessid, s)
         time.sleep(5)
-    print_('*' * 30)
     SCKEY and server_chan()
+    print('*' * 30)
