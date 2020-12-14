@@ -24,7 +24,8 @@ PASSWORD = 'password1 password2' # 多个账号写法
 ```
 SCKEY: Server酱 的key，无需推送可不填
 ```
-示例: SCKEY = 'SCU64664Tfb2052dc10382535c3dd19e48ba000fc5dacd6a5dc3f6'
+示例: 
+SCKEY = 'SCU64664Tfb2052dc10382535c3dd19e48ba000fc5dacd6a5dc3f6'
 ```
 
 2、新建层 **BeautifulSoup** 将 [BeautifulSoup.zip](https://github.com/o0oo0ooo0/EUserv_extend/releases/download/0.1/BeautifulSoup.zip) 导入 ，添加运行环境 Python 3.6。
