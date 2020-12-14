@@ -12,11 +12,15 @@
 
 USERNAME: 你的EUserv账户邮箱或Customer ID
 ```
-示例: USERNAME = 'user@gmail.com' # 如果要登录多个账号请使用空格进行分割 USERNAME = 'user1@gmail.com user2@gmail.com'
+示例: 
+USERNAME = 'user@gmail.com'
+USERNAME = 'user1@gmail.com user2@gmail.com' # 多个账号写法
 ```
 PASSWORD: 账户的密码
 ```
-示例: PASSWORD = 'password' # 如果要登录多个账号请使用空格进行分割 PASSWORD = 'password1 password2'
+示例: 
+PASSWORD = 'password'
+PASSWORD = 'password1 password2' # 多个账号写法
 ```
 SCKEY: Server酱 的key，无需推送可不填
 ```
