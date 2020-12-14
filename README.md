@@ -9,10 +9,18 @@
 
 1、修改 **main.py** 中的用户名，密码和 [Server酱](https://sc.ftqq.com/?c=code) 的key
 
-```
+
 USERNAME: 你的EUserv账户邮箱或Customer ID
+```
+示例: USERNAME = 'user@gmail.com' # 如果要登录多个账号请使用空格进行分割 USERNAME = 'user1@gmail.com user2@gmail.com'
+```
 PASSWORD: 账户的密码
-SCKEY: Server酱 的key，无需推送可不填 示例: SCU64664Tfb2052dc10382535c3dd19e48ba000fc5dacd6a5dc3f6
+```
+示例: PASSWORD = 'password' # 如果要登录多个账号请使用空格进行分割 PASSWORD = 'password1 password2'
+```
+SCKEY: Server酱 的key，无需推送可不填
+```
+示例: SCKEY = 'SCU64664Tfb2052dc10382535c3dd19e48ba000fc5dacd6a5dc3f6'
 ```
 
 2、新建层 **BeautifulSoup** 将 [BeautifulSoup.zip](https://github.com/o0oo0ooo0/EUserv_extend/releases/download/0.1/BeautifulSoup.zip) 导入 ，添加运行环境 Python 3.6。
