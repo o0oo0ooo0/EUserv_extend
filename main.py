@@ -1,11 +1,24 @@
+# -*- coding: utf8 -*-
 import json
 import time
 import requests
 from bs4 import BeautifulSoup
 
-USERNAME = '' # 这里填用户名
+# 强烈建议部署在非大陆区域，例如HK、SG等
+
+USERNAME = '' # 这里填用户名，邮箱也可
 PASSWORD = ''  # 这里填密码
-SCKEY = '' # 这里填Server酱的key，无需推送可不填 示例: SCU64664Tfb2052dc10382535c3dd19e48ba000fc5dacd6a5dc3f6
+
+# Server酱 http://sc.ftqq.com/?c=code
+SCKEY = '' # 这里填Server酱的key，无需推送可不填 示例: SCU646xxxxxxxxdacd6a5dc3f6
+
+# 酷推 https://cp.xuthus.cc
+CoolPush_Skey = ''
+# 通知类型 CoolPush_MODE的可选项有（默认send）：send[QQ私聊]、group[QQ群聊]、wx[个微]、ww[企微]
+CoolPush_MODE = 'send'
+
+# PushPlus https://pushplus.hxtrip.com/message
+PushPlus_Token = ''
 
 desp = '' # 不用动
 
@@ -29,7 +42,7 @@ def login(username, password) -> (str, requests.session):
         "Submit": "Login",
         "subaction": "login"
     }
-    url = "https://85.31.185.123/index.iphp"
+    url = "https://support.euserv.com/index.iphp"
     session = requests.Session()
     f = session.post(url, headers=headers, data=login_data, verify=False)
     f.raise_for_status()
@@ -42,7 +55,7 @@ def login(username, password) -> (str, requests.session):
 
 def get_servers(sess_id, session) -> {}:
     d = {}
-    url = "https://85.31.185.123/index.iphp?sess_id=" + sess_id
+    url = "https://support.euserv.com/index.iphp?sess_id=" + sess_id
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/83.0.4103.116 Safari/537.36",
@@ -63,7 +76,7 @@ def get_servers(sess_id, session) -> {}:
 
 
 def renew(sess_id, session, password, order_id) -> bool:
-    url = "https://85.31.185.123/index.iphp"
+    url = "https://support.euserv.com/index.iphp"
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/83.0.4103.116 Safari/537.36",
@@ -112,17 +125,42 @@ def check(sess_id, session):
     if flag:
         print_("ALL Work Done! Enjoy")
 
+# Server酱 http://sc.ftqq.com/?c=code
 def server_chan():
     data = (
-    ('text', 'EUserv续费日志'),
-    ('desp', desp)
-)
+        ('text', 'EUserv续费日志'),
+        ('desp', desp)
+    )
     response = requests.post('https://sc.ftqq.com/' + SCKEY + '.send', data=data)
     if response.status_code != 200:
         print('Server酱 推送失败')
     else:
         print('Server酱 推送成功')
 
+# 酷推 https://cp.xuthus.cc/
+def CoolPush():
+    c = 'EUserv续费日志\n\n' + desp
+    data = json.dumps({'c': c})
+    url = 'https://push.xuthus.cc/' + CoolPush_MODE + '/' + CoolPush_Skey
+    response = requests.post(url, data=data)
+    if response.status_code != 200:
+        print('酷推 推送失败')
+    else:
+        print('酷推 推送成功')
+
+# PushPlus https://pushplus.hxtrip.com/message
+def PushPlus():
+    data = (
+        ('token', PushPlus_Token),
+        ('title', 'EUserv续费日志'),
+        ('content', desp)
+    )
+    url = 'http://pushplus.hxtrip.com/send'
+    response = requests.post(url, data=data)
+    if response.status_code != 200:
+        print('PushPlus 推送失败')
+    else:
+        print('PushPlus 推送成功')
 
 def main_handler(event, context):
     if not USERNAME or not PASSWORD:
@@ -153,5 +191,10 @@ def main_handler(event, context):
         time.sleep(15)
         check(sessid, s)
         time.sleep(5)
+    
+    # 三个通知渠道至少选取一个
     SCKEY and server_chan()
+    CoolPush_MODE and CoolPush_Skey and CoolPush()
+    PushPlus_Token and PushPlus()
+    
     print('*' * 30)
