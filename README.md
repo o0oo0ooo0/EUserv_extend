@@ -12,31 +12,31 @@
 
 USERNAME: 你的EUserv账户邮箱或Customer ID
 
-示例: 
 ```
 USERNAME = 'user@gmail.com'
 USERNAME = 'user1@gmail.com user2@gmail.com' # 多个账号写法
 ```
 PASSWORD: 账户的密码
 
-示例: 
 ```
 PASSWORD = 'password'
 PASSWORD = 'password1 password2' # 多个账号写法
 ```
-SCKEY: Server酱 的key，无需推送可不填
+Server酱
 
-示例:
 ```
 SCKEY = 'SCU64664Tfb2052dc10382535c3dd19e48ba000fc5dacd6a5dc3f6'
 ```
-```
 酷推
+
+```
 CoolPush_Skey = ''
 # 通知类型 CoolPush_MODE的可选项有（默认send）：send[QQ私聊]、group[QQ群聊]、wx[个微]、ww[企微]
 CoolPush_MODE = 'send'
+```
+PushPlus
 
-# PushPlus
+```
 PushPlus_Token = ''
 ```
 
