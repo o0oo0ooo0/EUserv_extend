@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+import re
 import json
 import time
 import requests
@@ -35,12 +36,21 @@ def login(username, password) -> (str, requests.session):
         "origin": "https://www.euserv.com",
         "host": "support.euserv.com"
     }
+    url = "https://support.euserv.com/index.iphp"
+    session = requests.Session()
+
+    sess = session.get(url, headers=headers)
+    sess_id = re.findall("PHPSESSID=(\\w{10,100});", str(sess.headers))[0]
+    # 访问png
+    png_url = "https://support.euserv.com/pic/logo_small.png"
+    session.get(png_url, headers=headers)
     login_data = {
         "email": username,
         "password": password,
         "form_selected_language": "en",
         "Submit": "Login",
-        "subaction": "login"
+        "subaction": "login",
+        "sess_id": sess_id
     }
     url = "https://support.euserv.com/index.iphp"
     session = requests.Session()
@@ -48,8 +58,6 @@ def login(username, password) -> (str, requests.session):
     f.raise_for_status()
     if f.text.find('Hello') == -1:
         return '-1', session
-    # print_(f.request.url)
-    sess_id = f.request.url[f.request.url.index('=') + 1:len(f.request.url)]
     return sess_id, session
 
 
