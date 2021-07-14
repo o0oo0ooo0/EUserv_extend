@@ -21,6 +21,11 @@ CoolPush_MODE = 'send'
 # PushPlus https://pushplus.hxtrip.com/message
 PushPlus_Token = ''
 
+# Telegram Bot Push https://core.telegram.org/bots/api#authorizing-your-bot
+TG_BOT_TOKEN = '' # 通过 @BotFather 申请获得，示例：1077xxx4424:AAFjv0FcqxxxxxxgEMGfi22B4yh15R5uw
+TG_USER_ID = '' # 用户、群组或频道 ID，示例：129xxx206
+TG_API_HOST = 'api.telegram.org' # 自建 API 反代地址，供网络环境无法访问时使用，网络正常则保持默认
+
 desp = ''  # 不用动
 
 
@@ -172,7 +177,18 @@ def PushPlus():
     else:
         print('PushPlus 推送成功')
 
-
+# Telegram Bot Push https://core.telegram.org/bots/api#authorizing-your-bot
+def Telegram():
+    data = (
+		('chat_id', TG_USER_ID),
+        ('text', 'EUserv续费日志\n\n' + desp)
+    )
+    response = requests.post('https://' + TG_API_HOST + '/bot' + TG_BOT_TOKEN + '/sendMessage', data=data)
+    if response.status_code != 200:
+        print('Telegram Bot 推送失败')
+    else:
+        print('Telegram Bot 推送成功')
+		
 def main_handler(event, context):
     if not USERNAME or not PASSWORD:
         print_("你没有添加任何账户")
@@ -203,10 +219,11 @@ def main_handler(event, context):
         check(sessid, s)
         time.sleep(5)
 
-    # 三个通知渠道至少选取一个
+    # 四个通知渠道至少选取一个
     SCKEY and server_chan()
     CoolPush_MODE and CoolPush_Skey and CoolPush()
     PushPlus_Token and PushPlus()
+    TG_BOT_TOKEN and TG_USER_ID and TG_API_HOST and Telegram()
 
     print('*' * 30)
 
