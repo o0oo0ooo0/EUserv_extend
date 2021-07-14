@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 
 # 强烈建议部署在非大陆区域，例如HK、SG等
-
+# 常量命名使用全部大写的方式，可以使用下划线。
 USERNAME = ''  # 这里填用户名，邮箱也可
 PASSWORD = ''  # 这里填密码
 
@@ -14,21 +14,27 @@ PASSWORD = ''  # 这里填密码
 SCKEY = ''  # 这里填Server酱的key，无需推送可不填 示例: SCU646xxxxxxxxdacd6a5dc3f6
 
 # 酷推 https://cp.xuthus.cc
-CoolPush_Skey = ''
+COOL_PUSH_SKEY = ''
 # 通知类型 CoolPush_MODE的可选项有（默认send）：send[QQ私聊]、group[QQ群聊]、wx[个微]、ww[企微]
-CoolPush_MODE = 'send'
+COOL_PUSH_MODE = 'send'
 
 # PushPlus https://pushplus.hxtrip.com/message
-PushPlus_Token = ''
+PUSH_PLUS_TOKEN = ''
 
 # Telegram Bot Push https://core.telegram.org/bots/api#authorizing-your-bot
-TG_BOT_TOKEN = '' # 通过 @BotFather 申请获得，示例：1077xxx4424:AAFjv0FcqxxxxxxgEMGfi22B4yh15R5uw
-TG_USER_ID = '' # 用户、群组或频道 ID，示例：129xxx206
-TG_API_HOST = 'api.telegram.org' # 自建 API 反代地址，供网络环境无法访问时使用，网络正常则保持默认
+TG_BOT_TOKEN = ''  # 通过 @BotFather 申请获得，示例：1077xxx4424:AAFjv0FcqxxxxxxgEMGfi22B4yh15R5uw
+TG_USER_ID = ''  # 用户、群组或频道 ID，示例：129xxx206
+TG_API_HOST = 'api.telegram.org'  # 自建 API 反代地址，供网络环境无法访问时使用，网络正常则保持默认
 
+# wecomchan https://github.com/easychen/wecomchan
+WECOMCHAN_DOMAIN = ''  # http(s)://example.com/
+WECOMCHAN_SEND_KEY = ''
+WECOMCHAN_TO_USER = '@all'  # 默认全部推送, 对个别人推送可用 User1|User2
+# 变量命名使用全部小写的方式，可以使用下划线。
 desp = ''  # 不用动
 
 
+# 函数命名使用全部小写的方式，可以使用下划线。
 def print_(info):
     print(info)
     global desp
@@ -152,10 +158,10 @@ def server_chan():
 
 
 # 酷推 https://cp.xuthus.cc/
-def CoolPush():
+def coolpush():
     c = 'EUserv续费日志\n\n' + desp
     data = json.dumps({'c': c})
-    url = 'https://push.xuthus.cc/' + CoolPush_MODE + '/' + CoolPush_Skey
+    url = 'https://push.xuthus.cc/' + COOL_PUSH_MODE + '/' + COOL_PUSH_SKEY
     response = requests.post(url, data=data)
     if response.status_code != 200:
         print('酷推 推送失败')
@@ -164,23 +170,24 @@ def CoolPush():
 
 
 # PushPlus https://pushplus.hxtrip.com/message
-def PushPlus():
+def push_plus():
     data = (
-        ('token', PushPlus_Token),
+        ('token', PUSH_PLUS_TOKEN),
         ('title', 'EUserv续费日志'),
         ('content', desp)
     )
-    url = 'http://pushplus.hxtrip.com/send'
+    url = 'https://pushplus.hxtrip.com/send'
     response = requests.post(url, data=data)
     if response.status_code != 200:
         print('PushPlus 推送失败')
     else:
         print('PushPlus 推送成功')
 
+
 # Telegram Bot Push https://core.telegram.org/bots/api#authorizing-your-bot
-def Telegram():
+def telegram():
     data = (
-		('chat_id', TG_USER_ID),
+        ('chat_id', TG_USER_ID),
         ('text', 'EUserv续费日志\n\n' + desp)
     )
     response = requests.post('https://' + TG_API_HOST + '/bot' + TG_BOT_TOKEN + '/sendMessage', data=data)
@@ -188,7 +195,18 @@ def Telegram():
         print('Telegram Bot 推送失败')
     else:
         print('Telegram Bot 推送成功')
-		
+
+
+# wecomchan https://github.com/easychen/wecomchan
+def wecomchan():
+    response = requests.get(WECOMCHAN_DOMAIN + 'wecomchan?sendkey=' + WECOMCHAN_SEND_KEY + '&msg_type=text' + '&to_user=' +
+                            WECOMCHAN_TO_USER + '&msg=' + 'EUserv续费日志\n\n' + desp)
+    if response.status_code != 200:
+        print('wecomchan 推送失败')
+    else:
+        print('wecomchan 推送成功')
+
+
 def main_handler(event, context):
     if not USERNAME or not PASSWORD:
         print_("你没有添加任何账户")
@@ -205,9 +223,9 @@ def main_handler(event, context):
         if sessid == '-1':
             print_("第 %d 个账号登陆失败，请检查登录信息" % (i + 1))
             continue
-        SERVERS = get_servers(sessid, s)
-        print_("检测到第 {} 个账号有 {} 台VPS，正在尝试续期".format(i + 1, len(SERVERS)))
-        for k, v in SERVERS.items():
+        servers = get_servers(sessid, s)
+        print_("检测到第 {} 个账号有 {} 台VPS，正在尝试续期".format(i + 1, len(servers)))
+        for k, v in servers.items():
             if v:
                 if not renew(sessid, s, passwd_list[i], k):
                     print_("ServerID: %s Renew Error!" % k)
@@ -219,11 +237,12 @@ def main_handler(event, context):
         check(sessid, s)
         time.sleep(5)
 
-    # 四个通知渠道至少选取一个
+    # 五个通知渠道至少选取一个
     SCKEY and server_chan()
-    CoolPush_MODE and CoolPush_Skey and CoolPush()
-    PushPlus_Token and PushPlus()
-    TG_BOT_TOKEN and TG_USER_ID and TG_API_HOST and Telegram()
+    COOL_PUSH_MODE and COOL_PUSH_SKEY and coolpush()
+    PUSH_PLUS_TOKEN and push_plus()
+    TG_BOT_TOKEN and TG_USER_ID and TG_API_HOST and telegram()
+    WECOMCHAN_DOMAIN and WECOMCHAN_SEND_KEY and WECOMCHAN_TO_USER and wecomchan()
 
     print('*' * 30)
 
