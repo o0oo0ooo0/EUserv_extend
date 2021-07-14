@@ -7,11 +7,11 @@ from bs4 import BeautifulSoup
 
 # 强烈建议部署在非大陆区域，例如HK、SG等
 
-USERNAME = '' # 这里填用户名，邮箱也可
+USERNAME = ''  # 这里填用户名，邮箱也可
 PASSWORD = ''  # 这里填密码
 
 # Server酱 http://sc.ftqq.com/?c=code
-SCKEY = '' # 这里填Server酱的key，无需推送可不填 示例: SCU646xxxxxxxxdacd6a5dc3f6
+SCKEY = ''  # 这里填Server酱的key，无需推送可不填 示例: SCU646xxxxxxxxdacd6a5dc3f6
 
 # 酷推 https://cp.xuthus.cc
 CoolPush_Skey = ''
@@ -21,7 +21,8 @@ CoolPush_MODE = 'send'
 # PushPlus https://pushplus.hxtrip.com/message
 PushPlus_Token = ''
 
-desp = '' # 不用动
+desp = ''  # 不用动
+
 
 def print_(info):
     print(info)
@@ -34,7 +35,6 @@ def login(username, password) -> (str, requests.session):
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/83.0.4103.116 Safari/537.36",
         "origin": "https://www.euserv.com",
-        "host": "support.euserv.com"
     }
     url = "https://support.euserv.com/index.iphp"
     session = requests.Session()
@@ -44,6 +44,7 @@ def login(username, password) -> (str, requests.session):
     # 访问png
     png_url = "https://support.euserv.com/pic/logo_small.png"
     session.get(png_url, headers=headers)
+
     login_data = {
         "email": username,
         "password": password,
@@ -52,25 +53,23 @@ def login(username, password) -> (str, requests.session):
         "subaction": "login",
         "sess_id": sess_id
     }
-    url = "https://support.euserv.com/index.iphp"
-    session = requests.Session()
-    f = session.post(url, headers=headers, data=login_data, verify=False)
+    f = session.post(url, headers=headers, data=login_data)
     f.raise_for_status()
+
     if f.text.find('Hello') == -1:
         return '-1', session
     return sess_id, session
 
 
-def get_servers(sess_id, session) -> {}:
+def get_servers(sess_id: str, session: requests.session) -> {}:
     d = {}
     url = "https://support.euserv.com/index.iphp?sess_id=" + sess_id
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/83.0.4103.116 Safari/537.36",
-        "origin": "https://www.euserv.com",
-        "host": "support.euserv.com"
+        "origin": "https://www.euserv.com"
     }
-    f = session.get(url=url, headers=headers, verify=False)
+    f = session.get(url=url, headers=headers)
     f.raise_for_status()
     soup = BeautifulSoup(f.text, 'html.parser')
     for tr in soup.select('#kc2_order_customer_orders_tab_content_1 .kc2_order_table.kc2_content_table tr'):
@@ -83,7 +82,7 @@ def get_servers(sess_id, session) -> {}:
     return d
 
 
-def renew(sess_id, session, password, order_id) -> bool:
+def renew(sess_id: str, session: requests.session, password: str, order_id: str) -> bool:
     url = "https://support.euserv.com/index.iphp"
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -99,14 +98,14 @@ def renew(sess_id, session, password, order_id) -> bool:
         "subaction": "choose_order",
         "choose_order_subaction": "show_contract_details"
     }
-    session.post(url, headers=headers, data=data, verify=False)
+    session.post(url, headers=headers, data=data)
     data = {
         "sess_id": sess_id,
         "subaction": "kc2_security_password_get_token",
         "prefix": "kc2_customer_contract_details_extend_contract_",
         "password": password
     }
-    f = session.post(url, headers=headers, data=data, verify=False)
+    f = session.post(url, headers=headers, data=data)
     f.raise_for_status()
     if not json.loads(f.text)["rs"] == "success":
         return False
@@ -117,13 +116,13 @@ def renew(sess_id, session, password, order_id) -> bool:
         "subaction": "kc2_customer_contract_details_extend_contract_term",
         "token": token
     }
-    session.post(url, headers=headers, data=data, verify=False)
+    session.post(url, headers=headers, data=data)
     time.sleep(5)
     return True
 
 
-def check(sess_id, session):
-    print_("Checking.......")
+def check(sess_id: str, session: requests.session):
+    print("Checking.......")
     d = get_servers(sess_id, session)
     flag = True
     for key, val in d.items():
@@ -132,6 +131,7 @@ def check(sess_id, session):
             print_("ServerID: %s Renew Failed!" % key)
     if flag:
         print_("ALL Work Done! Enjoy")
+
 
 # Server酱 http://sc.ftqq.com/?c=code
 def server_chan():
@@ -145,6 +145,7 @@ def server_chan():
     else:
         print('Server酱 推送成功')
 
+
 # 酷推 https://cp.xuthus.cc/
 def CoolPush():
     c = 'EUserv续费日志\n\n' + desp
@@ -155,6 +156,7 @@ def CoolPush():
         print('酷推 推送失败')
     else:
         print('酷推 推送成功')
+
 
 # PushPlus https://pushplus.hxtrip.com/message
 def PushPlus():
@@ -169,6 +171,7 @@ def PushPlus():
         print('PushPlus 推送失败')
     else:
         print('PushPlus 推送成功')
+
 
 def main_handler(event, context):
     if not USERNAME or not PASSWORD:
@@ -199,10 +202,14 @@ def main_handler(event, context):
         time.sleep(15)
         check(sessid, s)
         time.sleep(5)
-    
+
     # 三个通知渠道至少选取一个
     SCKEY and server_chan()
     CoolPush_MODE and CoolPush_Skey and CoolPush()
     PushPlus_Token and PushPlus()
-    
+
     print('*' * 30)
+
+
+if __name__ == '__main__':  # 方便我本地调试
+    main_handler(None, None)
