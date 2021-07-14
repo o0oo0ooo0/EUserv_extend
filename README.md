@@ -30,14 +30,14 @@ SCKEY = 'SCU64664Tfb2052dc10382535c3dd19e48ba000fc5dacd6a5dc3f6'
 酷推
 
 ```
-CoolPush_Skey = ''
+COOLPUSH_SKEY = ''
 # 通知类型 CoolPush_MODE的可选项有（默认send）：send[QQ私聊]、group[QQ群聊]、wx[个微]、ww[企微]
-CoolPush_MODE = 'send'
+COOLPUSH_MODE = 'send'
 ```
 PushPlus
 
 ```
-PushPlus_Token = ''
+PUSHPLUS_TOKEN = ''
 ```
 Telegram Bot Push
 ```
@@ -45,7 +45,14 @@ TG_BOT_TOKEN = '' # 通过 @BotFather 申请获得，示例：1077xxx4424:AAFjv0
 TG_USER_ID = '' # 用户、群组或频道 ID，示例：129xxx206
 TG_API_HOST = 'api.telegram.org' # 自建 API 反代地址，供网络环境无法访问时使用，网络正常则保持默认
 ```
+wecomchan
 
+具体可参考[wecomchan_go-scf](https://github.com/easychen/wecomchan/tree/main/go-scf)
+```
+WECOMCHAN_DOMAIN = ''  # 你的服务器的主页 例: https://example.com/
+WECOMCHAN_SEND_KEY = ''  # 你配置的key
+WECOMCHAN_TO_USER = '@all'  # 默认全部推送, 对个别人推送可用 User1|User2
+```
 2、新建层 **BeautifulSoup** 将 [BeautifulSoup.zip](https://github.com/o0oo0ooo0/EUserv_extend/releases/download/0.1/BeautifulSoup.zip) 导入 ，添加运行环境 Python 3.6。
 
 3、新建腾讯云函数 **EUserv_extend** ，运行环境选择 Python 3.6，创建方式选择 空白函数，内存选择 64M，执行超时时间建议为 300 s（网站在国外访问比较慢，建议部署在非大陆区域，例如HK、SG等），将修改后的 **main.py** 粘贴进去。
