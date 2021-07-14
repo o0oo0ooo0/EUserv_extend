@@ -7,7 +7,7 @@
 
 ## 使用说明
 
-1、修改 **main.py** 中的用户名，密码和 [Server酱](https://sc.ftqq.com/?c=code) 或者 [酷推](https://cp.xuthus.cc) 或者 [PushPlus](https://pushplus.hxtrip.com/message) 的key
+1、修改 **main.py** 中的用户名，密码，并配置合适的推送方式（[Server酱](https://sc.ftqq.com/?c=code)、[酷推](https://cp.xuthus.cc)、[PushPlus](https://pushplus.hxtrip.com/message) 或 [Telegram Bot Push](https://core.telegram.org/bots/api#authorizing-your-bot)）
 
 
 USERNAME: 你的EUserv账户邮箱或Customer ID
@@ -38,6 +38,12 @@ PushPlus
 
 ```
 PushPlus_Token = ''
+```
+Telegram Bot Push
+```
+TG_BOT_TOKEN = '' # 通过 @BotFather 申请获得，示例：1077xxx4424:AAFjv0FcqxxxxxxgEMGfi22B4yh15R5uw
+TG_USER_ID = '' # 用户、群组或频道 ID，示例：129xxx206
+TG_API_HOST = 'api.telegram.org' # 自建 API 反代地址，供网络环境无法访问时使用，网络正常则保持默认
 ```
 
 2、新建层 **BeautifulSoup** 将 [BeautifulSoup.zip](https://github.com/o0oo0ooo0/EUserv_extend/releases/download/0.1/BeautifulSoup.zip) 导入 ，添加运行环境 Python 3.6。
