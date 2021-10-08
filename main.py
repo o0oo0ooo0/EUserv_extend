@@ -3,13 +3,8 @@ import re
 import json
 import time
 import requests
-from bs4 import BeautifulSoup
-
 import base64
-from email.mime.application import MIMEApplication
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from smtplib import SMTP_SSL, SMTPDataError
+from bs4 import BeautifulSoup
 
 
 # 强烈建议部署在非大陆区域，例如HK、SG等
