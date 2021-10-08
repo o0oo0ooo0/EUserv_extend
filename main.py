@@ -5,10 +5,24 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
+import base64
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from smtplib import SMTP_SSL, SMTPDataError
+
+
 # 强烈建议部署在非大陆区域，例如HK、SG等
 # 常量命名使用全部大写的方式，可以使用下划线。
 USERNAME = ''  # 这里填用户名，邮箱也可
 PASSWORD = ''  # 这里填密码
+
+# TrueCaptcha https://apitruecaptcha.org
+# https://gist.github.com/ZetaoYang/e182453efadc90739a14daf2bd829087
+# 验证码识别，默认使用 Demo API，每天有100次免费额度，建议自行注册以确保稳定性
+TRUECAPTCHA_USERID = 'arun56'
+TRUECAPTCHA_APIKEY = 'wMjXmBIcHcdYqO2RrsVN'
+TRUECAPTCHA_CHECK_USAGE = True
 
 # Server酱 http://sc.ftqq.com/?c=code
 SCKEY = ''  # 这里填Server酱的key，无需推送可不填 示例: SCU646xxxxxxxxdacd6a5dc3f6
@@ -48,6 +62,7 @@ def login(username, password) -> (str, requests.session):
         "origin": "https://www.euserv.com",
     }
     url = "https://support.euserv.com/index.iphp"
+    captcha_image_url = "https://support.euserv.com/securimage_show.php"
     session = requests.Session()
 
     sess = session.get(url, headers=headers)
@@ -67,10 +82,76 @@ def login(username, password) -> (str, requests.session):
     f = session.post(url, headers=headers, data=login_data)
     f.raise_for_status()
 
-    if f.text.find('Hello') == -1:
-        return '-1', session
-    return sess_id, session
+    if (
+        f.text.find("Hello") == -1
+        and f.text.find("Confirm or change your customer data here") == -1
+    ):
+        if (
+            f.text.find(
+                "To finish the login process please solve the following captcha."
+            )
+            == -1
+        ):
+            return "-1", session
+        else:
+            print_("[Captcha Solver] 进行验证码识别...")
+            solved_result = captcha_solver(captcha_image_url, session)
+            captcha_code = handle_captcha_solved_result(solved_result)
+            print_("[Captcha Solver] 识别的验证码是: {}".format(captcha_code))
+            if TRUECAPTCHA_CHECK_USAGE:
+                usage = get_captcha_solver_usage()
+                print_(
+                    "[Captcha Solver] current date {0} api usage count: {1}".format(
+                        usage[0]["date"], usage[0]["count"]
+                    )
+                )
+            f2 = session.post(
+                url,
+                headers=headers,
+                data={
+                    "subaction": "login",
+                    "sess_id": sess_id,
+                    "captcha_code": captcha_code,
+                },
+            )
+            if (
+                f2.text.find(
+                    "To finish the login process please solve the following captcha."
+                )
+                == -1
+            ):
+                print_("[Captcha Solver] 验证通过")
+                return sess_id, session
+            else:
+                print_("[Captcha Solver] 验证失败")
+                return "-1", session
+    else:
+        return sess_id, session
 
+def login_retry(*args, **kwargs):
+    def wrapper(func):
+        def inner(username, password):
+            ret, ret_session = func(username, password)
+            max_retry = kwargs.get("max_retry")
+            # default retry 3 times
+            if not max_retry:
+                max_retry = 3
+            number = 0
+            if ret == "-1":
+                while number < max_retry:
+                    number += 1
+                    if number > 1:
+                        print_("[EUserv] Login tried the {}th time".format(number))
+                    sess_id, session = func(username, password)
+                    if sess_id != "-1":
+                        return sess_id, session
+                    else:
+                        if number == max_retry:
+                            return sess_id, session
+            else:
+                return ret, ret_session
+        return inner
+    return wrapper
 
 def get_servers(sess_id: str, session: requests.session) -> {}:
     d = {}
@@ -87,8 +168,14 @@ def get_servers(sess_id: str, session: requests.session) -> {}:
         server_id = tr.select('.td-z1-sp1-kc')
         if not len(server_id) == 1:
             continue
-        flag = True if tr.select('.td-z1-sp2-kc .kc2_order_action_container')[
-                           0].get_text().find('Contract extension possible from') == -1 else False
+        flag = (
+            True
+            if tr.select(".td-z1-sp2-kc .kc2_order_action_container")[0]
+            .get_text()
+            .find("Contract extension possible from")
+            == -1
+            else False
+        )
         d[server_id[0].get_text()] = flag
     return d
 
@@ -142,6 +229,71 @@ def check(sess_id: str, session: requests.session):
             print_("ServerID: %s Renew Failed!" % key)
     if flag:
         print_("ALL Work Done! Enjoy")
+        
+
+# TrueCaptcha https://apitruecaptcha.org
+def captcha_solver(captcha_image_url: str, session: requests.session) -> dict:
+    response = session.get(captcha_image_url)
+    encoded_string = base64.b64encode(response.content)
+    url = "https://api.apitruecaptcha.org/one/gettext"
+
+    data = {
+        "userid": TRUECAPTCHA_USERID,
+        "apikey": TRUECAPTCHA_APIKEY,
+        "case": "mixed",
+        "mode": "human",
+        "data": str(encoded_string)[2:-1],
+    }
+    r = requests.post(url=url, json=data)
+    j = json.loads(r.text)
+    return j
+
+def handle_captcha_solved_result(solved: dict) -> str:
+    if "result" in solved:
+        solved_text = solved["result"]
+        if "RESULT  IS" in solved_text:
+            print_("[Captcha Solver] You are using the demo apikey.")
+            print("There is no guarantee that demo apikey will work in the future!")
+            # because using demo apikey
+            text = re.findall(r"RESULT  IS . (.*) .", solved_text)[0]
+        else:
+            # using your own apikey
+            print_("[Captcha Solver] You are using your own apikey.")
+            text = solved_text
+        operators = ["X", "x", "+", "-"]
+        if any(x in text for x in operators):
+            for operator in operators:
+                operator_pos = text.find(operator)
+                if operator == "x" or operator == "X":
+                    operator = "*"
+                if operator_pos != -1:
+                    left_part = text[:operator_pos]
+                    right_part = text[operator_pos + 1 :]
+                    if left_part.isdigit() and right_part.isdigit():
+                        return eval(
+                            "{left} {operator} {right}".format(
+                                left=left_part, operator=operator, right=right_part
+                            )
+                        )
+                    else:
+                        # Because these symbols("X", "x", "+", "-") do not appear at the same time,
+                        # it just contains an arithmetic symbol.
+                        return text
+        else:
+            return text
+    else:
+        print(solved)
+        raise KeyError("Failed to find parsed results.")
+
+def get_captcha_solver_usage() -> dict:
+    url = "https://api.apitruecaptcha.org/one/getusage"
+    params = {
+        "username": TRUECAPTCHA_USERID,
+        "apikey": TRUECAPTCHA_APIKEY,
+    }
+    r = requests.get(url=url, params=params)
+    j = json.loads(r.text)
+    return j
 
 
 # Server酱 http://sc.ftqq.com/?c=code
