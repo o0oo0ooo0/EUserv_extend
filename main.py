@@ -123,30 +123,6 @@ def login(username, password) -> (str, requests.session):
     else:
         return sess_id, session
 
-def login_retry(*args, **kwargs):
-    def wrapper(func):
-        def inner(username, password):
-            ret, ret_session = func(username, password)
-            max_retry = kwargs.get("max_retry")
-            # default retry 3 times
-            if not max_retry:
-                max_retry = 3
-            number = 0
-            if ret == "-1":
-                while number < max_retry:
-                    number += 1
-                    if number > 1:
-                        print_("[EUserv] Login tried the {}th time".format(number))
-                    sess_id, session = func(username, password)
-                    if sess_id != "-1":
-                        return sess_id, session
-                    else:
-                        if number == max_retry:
-                            return sess_id, session
-            else:
-                return ret, ret_session
-        return inner
-    return wrapper
 
 def get_servers(sess_id: str, session: requests.session) -> {}:
     d = {}
