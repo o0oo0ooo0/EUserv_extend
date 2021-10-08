@@ -1,27 +1,44 @@
 # EUserv_extend
-使用 [腾讯云函数 SCF](https://console.cloud.tencent.com/scf/) 自动续期EUserv免费IPv6 VPS脚本
+使用 [腾讯云函数 SCF](https://console.cloud.tencent.com/scf/) 自动续期 EUserv 免费 IPv6 VPS 脚本
+
 
 ## 说明
 
 自动获取账号内所有的VPS项目，并检测是否需要续期，需要续期会自动续期。
 
+
 ## 使用说明
 
-1、修改 **main.py** 中的用户名，密码，并配置合适的推送方式（[Server酱](https://sc.ftqq.com/?c=code)、[酷推](https://cp.xuthus.cc)、[PushPlus](https://pushplus.hxtrip.com/message)、[Telegram Bot Push](https://core.telegram.org/bots/api#authorizing-your-bot) 或 [wecomchan](https://github.com/easychen/wecomchan)）
+1、修改 **main.py** 中的用户名，密码
 
-
-USERNAME: 你的EUserv账户邮箱或Customer ID
-
+USERNAME: 你的 EUserv 账户邮箱或 Customer ID
 ```
 USERNAME = 'user@gmail.com'
 USERNAME = 'user1@gmail.com user2@gmail.com' # 多个账号写法
 ```
-PASSWORD: 账户的密码
 
+PASSWORD: 账户的密码
 ```
 PASSWORD = 'password'
 PASSWORD = 'password1 password2' # 多个账号写法
 ```
+
+2、配置 TrueCaptcha 验证码接口
+
+默认使用 TrueCaptcha 官方 Demo API。每个 APIKEY 每天有 100 次免费额度，建议自行注册以确保稳定性。
+
+```
+TRUECAPTCHA_USERID = 'arun56'
+TRUECAPTCHA_APIKEY = 'wMjXmBIcHcdYqO2RrsVN'
+```
+
+检查 API 使用次数，一般为 True，保持默认即可
+```
+TRUECAPTCHA_CHECK_USAGE = True
+```
+
+3、配置合适的推送方式（[Server酱](https://sc.ftqq.com/?c=code)、[酷推](https://cp.xuthus.cc)、[PushPlus](https://pushplus.hxtrip.com/message)、[Telegram Bot Push](https://core.telegram.org/bots/api#authorizing-your-bot) 或 [wecomchan](https://github.com/easychen/wecomchan)）
+
 <details>
   <summary>Server酱</summary>
   <pre><code> 
@@ -64,19 +81,21 @@ WECOMCHAN_TO_USER = '@all'  # 默认全部推送, 对个别人推送可用 User1
 </code></pre>
 </details>
 
-2、新建层 **BeautifulSoup** 将 [BeautifulSoup.zip](https://github.com/o0oo0ooo0/EUserv_extend/releases/download/0.1/BeautifulSoup.zip) 导入 ，添加运行环境 Python 3.6。
+4、新建层 **BeautifulSoup** 将 [BeautifulSoup.zip](https://github.com/o0oo0ooo0/EUserv_extend/releases/download/0.1/BeautifulSoup.zip) 导入 ，添加运行环境 Python 3.6。
 
-3、新建腾讯云函数 **EUserv_extend** ，运行环境选择 Python 3.6，创建方式选择 空白函数，内存选择 64M，执行超时时间建议为 300 s（网站在国外访问比较慢，建议部署在非大陆区域，例如HK、SG等），将修改后的 **main.py** 粘贴进去。
+5、新建腾讯云函数 **EUserv_extend** ，运行环境选择 Python 3.6，创建方式选择 空白函数，内存选择 64M，执行超时时间建议为 300 s（网站在国外访问比较慢，建议部署在非大陆区域，例如HK、SG等），将修改后的 **main.py** 粘贴进去。
 
-4、在 EUserv_extend⇨函数管理⇨层管理 里绑定层 **BeautifulSoup**。
+6、在 EUserv_extend ⇨ 函数管理 ⇨ 层管理 里绑定层 **BeautifulSoup**。
 
-5、测试，没有错误就在 EUserv_extend⇨触发管理⇨创建触发器触发周期⇨自定义触发周期 填入
+7、测试，没有错误就在 EUserv_extend ⇨ 触发管理 ⇨ 创建触发器触发周期 ⇨ 自定义触发周期 填入
 
 ```
 0 0 8 */7 * * * # 每 7 天的 8 点执行，修改成你想要的时间。Cron 相关文档: https://cloud.tencent.com/document/product/583/9708
 ```
-6、完成。
+
+8、完成。
+
 
 ## 其他说明
 
-本项目直接修改自 [CokeMine/EUserv_extend](https://github.com/CokeMine/EUserv_extend) 以适用于腾讯云函数。
+本项目直接修改自 [CokeMine/EUserv_extend](https://github.com/CokeMine/EUserv_extend) 与 [ZetaoYang/main.py](https://gist.github.com/ZetaoYang/e182453efadc90739a14daf2bd829087) 以适用于腾讯云函数。
