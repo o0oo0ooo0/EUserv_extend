@@ -9,8 +9,9 @@ from bs4 import BeautifulSoup
 
 # 强烈建议部署在非大陆区域，例如HK、SG等
 # 常量命名使用全部大写的方式，可以使用下划线。
-USERNAME = ''  # 这里填用户名，邮箱也可
-PASSWORD = ''  # 这里填密码
+USERNAME = 'l1208f0726@gmail.com
+'  # 这里填用户名，邮箱也可
+PASSWORD = 'li070802.'  # 这里填密码
 
 # TrueCaptcha https://apitruecaptcha.org
 # https://gist.github.com/ZetaoYang/e182453efadc90739a14daf2bd829087
